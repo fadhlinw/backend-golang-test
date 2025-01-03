@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  library-api:
+    image: library-api:latest
+    container_name: library-api-container
+    build:
+      context: .
+      dockerfile: ./docker/web.Dockerfile
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+      - ${DEBUG_PORT}:2345
+    volumes:
+      - .:/clean_web
+    env_file: .env
+    networks:
+      - library
+    restart: always
+
+  database:
+    image: mysql:8.0.32
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql 
+    networks:
+      - library
+    restart: always
+    
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  impace:
+    name: library
+    driver: bridge
